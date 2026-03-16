@@ -1,0 +1,26 @@
+# 使用 Maven 作为基础镜像
+FROM maven:3.8.4-openjdk-8-slim AS build-base
+
+# 1. 换源并安装基础依赖 (增加 gnupg 确保 keys 可以被正确处理)
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y curl gnupg ca-certificates && \
+    # 2. 使用更稳定的方式添加 NodeSource
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    # 3. 清理缓存以缩小体积
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# 验证安装结果（如果这一步失败，构建会立即停止并报错）
+RUN node -v && npm -v
+
+# 配置 Maven 阿里云镜像
+RUN mkdir -p /root/.m2 && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><mirrors><mirror><id>aliyunmaven</id><mirrorOf>*</mirrorOf><name>阿里云公共仓库</name><url>https://maven.aliyun.com/repository/public</url></mirror></mirrors></settings>' > /root/.m2/settings.xml
+
+# 配置 npm 阿里云镜像
+RUN npm config set registry https://registry.npmmirror.com

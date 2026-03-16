@@ -1,0 +1,54 @@
+services:
+  # MySQL 数据库
+  jsherp-mysql:
+    image: mysql:8.0.24
+    container_name: jsherp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jsh_erp
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./jshERP-boot/docs/jsh_erp.sql:/docker-entrypoint-initdb.d/jsh_erp.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: always
+
+  # Redis 缓存
+  jsherp-redis:
+    image: redis:6.2.1
+    container_name: jsherp-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # 后端服务
+  jsherp-backend:
+    image: jsherp-backend:latest
+    container_name: jsherp-backend
+    depends_on:
+      jsherp-mysql:
+        condition: service_healthy
+      jsherp-redis:
+        condition: service_started
+    ports:
+      - "9999:9999"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://jsherp-mysql:3306/jsh_erp?useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_REDIS_HOST=jsherp-redis
+      - SPRING_REDIS_PASSWORD=
+    restart: always
+
+  # 前端服务
+  jsherp-frontend:
+    image: jsherp-frontend:latest
+    container_name: jsherp-frontend
+    depends_on:
+      - jsherp-backend
+    ports:
+      - "80:80"
+    restart: always
