@@ -270,12 +270,7 @@
         this.hovered = visible
       },
       showWeixinSpan() {
-        let host = window.location.host
-        if(host === 'cloud.gyjerp.com') {
-          return true
-        } else {
-          return false
-        }
+        return false
       }
     }
   }

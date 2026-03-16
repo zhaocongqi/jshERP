@@ -92,12 +92,7 @@
       document.body.classList.remove('userLayout')
     },
     created () {
-      let host = window.location.host
-      if(host === 'cloud.gyjerp.com') {
-        this.isShowRight = true
-      } else {
-        this.isShowRight = false
-      }
+      this.isShowRight = false
     },
     methods: {
       handleAndroidCancel() {
