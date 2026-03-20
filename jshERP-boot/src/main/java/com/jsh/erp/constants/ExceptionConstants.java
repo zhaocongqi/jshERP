@@ -461,6 +461,10 @@ public class ExceptionConstants {
     //单据录入-单据明细中存在重复的序列号
     public static final int DEPOT_HEAD_CHECK_SERIAL_NUMBER_REPEAT_CODE = 8500033;
     public static final String DEPOT_HEAD_CHECK_SERIAL_NUMBER_REPEAT_MSG = "抱歉，单据明细中存在重复的序列号:%s";
+    //单据录入-序列号已被出库，不允许修改该单据
+    public static final int DEPOT_HEAD_SN_NOT_ALLOW_UPDATE_CODE = 8500035;
+    public static final String DEPOT_HEAD_SN_NOT_ALLOW_UPDATE_MSG = "抱歉，序列号:%s已被出库，不允许修改该单据";
+
 
     /**
      *  单据明细信息
